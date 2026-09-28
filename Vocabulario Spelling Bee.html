@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vocabulario Spelling Bee - Presentación</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700;900&family=Inter:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #000000;
+        }
+        h1, h2, .title-font {
+            font-family: 'Poppins', sans-serif;
+        }
+        .yellow-accent {
+            background-color: #FFDE00;
+            color: #000000;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-6 md:p-12 select-none">
+
+    <header class="w-full max-w-4xl mx-auto flex flex-col md:flex-row justify-between items-center border-b-4 border-black pb-4 gap-4">
+        <div class="flex items-center gap-3 w-full md:w-auto justify-between md:justify-start">
+            <div>
+                <span id="category-badge" class="px-3 py-1 text-sm font-bold uppercase rounded-md yellow-accent border-2 border-black">Categoría</span>
+                <span id="slide-progress" class="ml-3 font-bold text-gray-600 text-sm">Diapositiva 1 / 400</span>
+            </div>
+        </div>
+        
+        <!-- Buscador de Categorías -->
+        <div class="flex items-center gap-2 w-full md:w-auto">
+            <label for="category-select" class="text-xs font-black uppercase text-gray-700">Ir a:</label>
+            <select id="category-select" onchange="jumpToCategory(this.value)" class="bg-white border-2 border-black px-3 py-1 font-bold text-sm rounded-lg shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] focus:outline-none cursor-pointer">
+                <!-- Opciones cargadas dinámicamente -->
+            </select>
+        </div>
+    </header>
+
+    <main class="w-full max-w-4xl mx-auto my-auto flex flex-col items-center justify-center text-center py-8">
+        <div id="slide-container" class="w-full max-w-2xl bg-white border-8 border-black p-8 md:p-12 rounded-2xl shadow-[12px_12px_0px_0px_rgba(0,0,0,1)] min-h-[420px] flex flex-col items-center justify-center transition-all duration-300">
+            <!-- Dynamic Slide Content Inserted via JS -->
+        </div>
+    </main>
+
+    <footer class="w-full max-w-4xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t-2 border-black">
+        <div class="flex gap-3 w-full sm:w-auto">
+            <button onclick="prevSlide()" class="flex-1 sm:flex-none px-6 py-3 font-black bg-white border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer">
+                ← ANTERIOR
+            </button>
+            <button onclick="nextSlide()" class="flex-1 sm:flex-none px-8 py-3 font-black yellow-accent border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-[2px_2px_0px_0px_rgba(0,0,0,1)] active:translate-x-1 active:translate-y-1 active:shadow-none transition-all cursor-pointer">
+                SIGUIENTE →
+            </button>
+        </div>
+        <div class="text-sm font-bold text-gray-500">
+            Usa las flechas del teclado (← / →) para avanzar o retroceder
+        </div>
+    </footer>
+
+    <script>
+        const rawData = [
+            // ANIMALES
+            {cat: "ANIMALES", en: "dog", es: "perro", img: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80"},
+            {cat: "ANIMALES", en: "cat", es: "gato", img: "https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=600&q=80"},
+            {cat: "ANIMALES", en: "bird", es: "pájaro", img: "https://images.unsplash.com/photo-1444464666168-49d633b86797?auto=format&fit=crop&w=600&q=80"},
+            {cat: "ANIMALES", en: "fish", es: "pez", img: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?auto=format&fit=crop&w=600&q=80"},
+            {cat: "ANIMALES", en: "horse", es: "caballo", img: "https://images.unsplash.com/photo-1553284965-83fd3e82fa5a?auto=format&fit=crop&w=600&q=80"},
+            {cat: "ANIMALES", en: "cow", es: "vaca", img: "https://images.unsplash.com/photo-1570042225831-d98fa7577f1e?auto=format&fit=crop&w=600&q=80"},
+            {cat: "ANIMALES", en: "sheep", es: "oveja", img: "https://images.unsplash.com/photo-1484557077804-29007f352697?auto=format&fit=crop&w=600&q=80"},
+            {cat: "ANIMALES", en: "goat", es: "cabra", img: "https://images.unsplash.com/photo-1524024973431-2ad916746881?auto=format&fit=crop&w=600&q=80"},
+            {cat: "ANIMALES", en: "pig", es: "cerdo", img: "https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=600&q=80"},
+            {cat: "ANIMALES", en: "rabbit", es: "conejo", img: "https://images.unsplash.com/photo-1585110396000-c9ffd4e4b308?auto=format&fit=crop&w=600&q=80"},
+            {cat: "ANIMALES", en: "lion", es: "león", img: "https://images.unsplash.com/photo-1534188753412-3e26d1d618d6?auto=format&fit=crop&w=600&q=80"},
+            {cat: "ANIMALES", en: "tiger", es: "tigre", img: "https://images.unsplash.com/photo-1561731216-c3a4d99437d5?auto=format&fit=crop&w=600&q=80"},
+            {cat: "ANIMALES", en: "elephant", es: "elefante", img: "https://images.unsplash.com/photo-1557050543-4d5f4e07ef46?auto=format&fit=crop&w=600&q=80"},
+
+            // FRUTAS
+            {cat: "FRUTAS", en: "apple", es: "manzana", img: "https://images.unsplash.com/photo-1560806887-1e4cd0b6cbd6?auto=format&fit=crop&w=600&q=80"},
+            {cat: "FRUTAS", en: "banana", es: "banano", img: "https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=600&q=80"},
+            {cat: "FRUTAS", en: "orange", es: "naranja", img: "https://images.unsplash.com/photo-1611080626919-7cf5a9dbab5b?auto=format&fit=crop&w=600&q=80"},
+            {cat: "FRUTAS", en: "grape", es: "uva", img: "https://images.unsplash.com/photo-1537640538966-79f369143f8f?auto=format&fit=crop&w=600&q=80"},
+            {cat: "FRUTAS", en: "strawberry", es: "fresa", img: "https://images.unsplash.com/photo-1464965911861-746a04b4bca6?auto=format&fit=crop&w=600&q=80"},
+            {cat: "FRUTAS", en: "watermelon", es: "sandía", img: "https://images.unsplash.com/photo-1587049352847-4a222e784d38?auto=format&fit=crop&w=600&q=80"},
+            {cat: "FRUTAS", en: "pineapple", es: "piña", img: "https://images.unsplash.com/photo-1550258987-190a2d41a8ba?auto=format&fit=crop&w=600&q=80"},
+            {cat: "FRUTAS", en: "mango", es: "mango", img: "https://images.unsplash.com/photo-1553279768-865429fa0078?auto=format&fit=crop&w=600&q=80"},
+            {cat: "FRUTAS", en: "pear", es: "pera", img: "https://images.unsplash.com/photo-1615485290382-441e4d049cb5?auto=format&fit=crop&w=600&q=80"},
+            {cat: "FRUTAS", en: "peach", es: "durazno", img: "https://images.unsplash.com/photo-1595855759920-86582396756a?auto=format&fit=crop&w=600&q=80"},
+            {cat: "FRUTAS", en: "cherry", es: "cereza", img: "https://images.unsplash.com/photo-1528821128474-27f963b062bf?auto=format&fit=crop&w=600&q=80"},
+            {cat: "FRUTAS", en: "lemon", es: "limón", img: "https://images.unsplash.com/photo-1590502593749-5264344d9f64?auto=format&fit=crop&w=600&q=80"},
+            {cat: "FRUTAS", en: "papaya", es: "papaya", img: "https://images.unsplash.com/photo-1617112848923-cc2234396a8d?auto=format&fit=crop&w=600&q=80"},
+
+            // FORMAS
+            {cat: "FORMAS", en: "circle", es: "círculo", shapeSvg: '<div class="w-36 h-36 rounded-full bg-black border-4 border-black"></div>'},
+            {cat: "FORMAS", en: "square", es: "cuadrado", shapeSvg: '<div class="w-36 h-36 bg-black border-4 border-black"></div>'},
+            {cat: "FORMAS", en: "triangle", es: "triángulo", shapeSvg: '<div class="w-0 h-0 border-x-[75px] border-x-transparent border-b-[130px] border-b-black"></div>'},
+            {cat: "FORMAS", en: "rectangle", es: "rectángulo", shapeSvg: '<div class="w-44 h-24 bg-black border-4 border-black"></div>'},
+            {cat: "FORMAS", en: "oval", es: "óvalo", shapeSvg: '<div class="w-44 h-28 rounded-[50%] bg-black border-4 border-black"></div>'},
+            {cat: "FORMAS", en: "diamond", es: "rombo", shapeSvg: '<div class="w-32 h-32 bg-black transform rotate-45 border-4 border-black"></div>'},
+            {cat: "FORMAS", en: "star", es: "estrella", shapeSvg: '<div class="text-7xl">⭐</div>'},
+            {cat: "FORMAS", en: "heart", es: "corazón", shapeSvg: '<div class="text-7xl">❤️</div>'},
+            {cat: "FORMAS", en: "pentagon", es: "pentágono", shapeSvg: '<div class="w-32 h-32 bg-black [clip-path:polygon(50%_0%,100%_38%,82%_100%,18%_100%,0%_38%)]"></div>'},
+            {cat: "FORMAS", en: "hexagon", es: "hexágono", shapeSvg: '<div class="w-36 h-32 bg-black [clip-path:polygon(25%_0%,75%_0%,100%_50%,75%_100%,25%_100%,0%_50%)]"></div>'},
+            {cat: "FORMAS", en: "cube", es: "cubo", shapeSvg: '<div class="w-32 h-32 bg-yellow-300 border-4 border-black shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center font-black text-2xl">CUBE</div>'},
+            {cat: "FORMAS", en: "sphere", es: "esfera", shapeSvg: '<div class="w-36 h-36 rounded-full bg-gradient-to-tr from-gray-900 via-gray-600 to-gray-200 border-4 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]"></div>'},
+
+            // COLORES
+            {cat: "COLORES", en: "red", es: "rojo", colorCode: "#EF4444"},
+            {cat: "COLORES", en: "blue", es: "azul", colorCode: "#3B82F6"},
+            {cat: "COLORES", en: "green", es: "verde", colorCode: "#10B981"},
+            {cat: "COLORES", en: "yellow", es: "amarillo", colorCode: "#FACC15"},
+            {cat: "COLORES", en: "orange", es: "naranja", colorCode: "#F97316"},
+            {cat: "COLORES", en: "purple", es: "morado", colorCode: "#A855F7"},
+            {cat: "COLORES", en: "pink", es: "rosado", colorCode: "#EC4899"},
+            {cat: "COLORES", en: "black", es: "negro", colorCode: "#000000"},
+            {cat: "COLORES", en: "white", es: "blanco", colorCode: "#FFFFFF", border: true},
+            {cat: "COLORES", en: "brown", es: "marrón", colorCode: "#78350F"},
+            {cat: "COLORES", en: "gray", es: "gris", colorCode: "#6B7280"},
+            {cat: "COLORES", en: "gold", es: "dorado", colorCode: "#D97706"},
+
+            // PROFESIONES
+            {cat: "PROFESIONES", en: "teacher", es: "profesor/a", img: "https://images.unsplash.com/photo-1524178232363-1fb2b075b655?auto=format&fit=crop&w=600&q=80"},
+            {cat: "PROFESIONES", en: "doctor", es: "médico/a", img: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&w=600&q=80"},
+            {cat: "PROFESIONES", en: "nurse", es: "enfermero/a", img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&w=600&q=80"},
+            {cat: "PROFESIONES", en: "engineer", es: "ingeniero/a", img: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"},
+            {cat: "PROFESIONES", en: "lawyer", es: "abogado/a", img: "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?auto=format&fit=crop&w=600&q=80"},
+            {cat: "PROFESIONES", en: "chef", es: "chef", img: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=600&q=80"},
+            {cat: "PROFESIONES", en: "pilot", es: "piloto", img: "https://images.unsplash.com/photo-1569154941061-e231b4725ef1?auto=format&fit=crop&w=600&q=80"},
+            {cat: "PROFESIONES", en: "dentist", es: "dentista", img: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&w=600&q=80"},
+            {cat: "PROFESIONES", en: "farmer", es: "agricultor/a", img: "https://images.unsplash.com/photo-1595974482597-4f878f2e647e?auto=format&fit=crop&w=600&q=80"},
+            {cat: "PROFESIONES", en: "artist", es: "artista", img: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=600&q=80"},
+            {cat: "PROFESIONES", en: "police officer", es: "policía", img: "https://images.unsplash.com/photo-1594732891390-a5f120194c57?auto=format&fit=crop&w=600&q=80"},
+            {cat: "PROFESIONES", en: "firefighter", es: "bombero/a", img: "https://images.unsplash.com/photo-1578328819058-b69f3a3b0f6b?auto=format&fit=crop&w=600&q=80"},
+
+            // DÍAS DE LA SEMANA
+            {cat: "DÍAS DE LA SEMANA", en: "Monday", es: "lunes", textOnly: true},
+            {cat: "DÍAS DE LA SEMANA", en: "Tuesday", es: "martes", textOnly: true},
+            {cat: "DÍAS DE LA SEMANA", en: "Wednesday", es: "miércoles", textOnly: true},
+            {cat: "DÍAS DE LA SEMANA", en: "Thursday", es: "jueves", textOnly: true},
+            {cat: "DÍAS DE LA SEMANA", en: "Friday", es: "viernes", textOnly: true},
+            {cat: "DÍAS DE LA SEMANA", en: "Saturday", es: "sábado", textOnly: true},
+            {cat: "DÍAS DE LA SEMANA", en: "Sunday", es: "domingo", textOnly: true},
+
+            // MESES DEL AÑO
+            {cat: "MESES DEL AÑO", en: "January", es: "enero", textOnly: true},
+            {cat: "MESES DEL AÑO", en: "February", es: "febrero", textOnly: true},
+            {cat: "MESES DEL AÑO", en: "March", es: "marzo", textOnly: true},
+            {cat: "MESES DEL AÑO", en: "April", es: "abril", textOnly: true},
+            {cat: "MESES DEL AÑO", en: "May", es: "mayo", textOnly: true},
+            {cat: "MESES DEL AÑO", en: "June", es: "junio", textOnly: true},
+            {cat: "MESES DEL AÑO", en: "July", es: "julio", textOnly: true},
+            {cat: "MESES DEL AÑO", en: "August", es: "agosto", textOnly: true},
+            {cat: "MESES DEL AÑO", en: "September", es: "septiembre", textOnly: true},
+            {cat: "MESES DEL AÑO", en: "October", es: "octubre", textOnly: true},
+            {cat: "MESES DEL AÑO", en: "November", es: "noviembre", textOnly: true},
+            {cat: "MESES DEL AÑO", en: "December", es: "diciembre", textOnly: true},
+
+            // VERBOS
+            {cat: "VERBOS", en: "be", es: "ser/estar", img: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "have", es: "tener", img: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "go", es: "ir", img: "https://images.unsplash.com/photo-1501504905252-473c47e087f8?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "come", es: "venir", img: "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "eat", es: "comer", img: "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "drink", es: "beber", img: "https://images.unsplash.com/photo-1556679343-c7306c1976bc?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "run", es: "correr", img: "https://images.unsplash.com/photo-1552674605-db6ffd4facb5?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "walk", es: "caminar", img: "https://images.unsplash.com/photo-1476480862126-209bfaa8edc8?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "read", es: "leer", img: "https://images.unsplash.com/photo-1506880018603-83d5b814b5a6?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "write", es: "escribir", img: "https://images.unsplash.com/photo-1517842645767-c639042777db?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "speak", es: "hablar", img: "https://images.unsplash.com/photo-1543269865-cbf427effbad?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "listen", es: "escuchar", img: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "study", es: "estudiar", img: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "work", es: "trabajar", img: "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "play", es: "jugar", img: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "open", es: "abrir", img: "https://images.unsplash.com/photo-1541123437800-1bb1317badc2?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "help", es: "ayudar", img: "https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "learn", es: "aprender", img: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80"},
+            {cat: "VERBOS", en: "sing", es: "cantar", img: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?auto=format&fit=crop&w=600&q=80"}
+        ];
+
+        let currentIndex = 0;
+        const totalSlides = rawData.length * 4;
+
+        function initCategorySelector() {
+            const select = document.getElementById('category-select');
+            const categories = [...new Set(rawData.map(item => item.cat))];
+            
+            select.innerHTML = '<option value="" disabled selected>Seleccionar...</option>';
+            categories.forEach(cat => {
+                const opt = document.createElement('option');
+                opt.value = cat;
+                opt.textContent = cat;
+                select.appendChild(opt);
+            });
+        }
+
+        function updateSlide() {
+            const wordIndex = Math.floor(currentIndex / 4);
+            const slideType = currentIndex % 4;
+            const item = rawData[wordIndex];
+
+            document.getElementById('category-badge').innerText = item.cat;
+            document.getElementById('slide-progress').innerText = `Diapositiva ${currentIndex + 1} / ${totalSlides}`;
+            
+            document.getElementById('category-select').value = item.cat;
+
+            const container = document.getElementById('slide-container');
+            let contentHTML = '';
+
+            if (slideType === 0) {
+                // Diapositiva 1: Categoría
+                contentHTML = `
+                    <div class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">Categoría</div>
+                    <div class="text-4xl md:text-5xl font-black uppercase px-6 py-3 yellow-accent border-4 border-black inline-block rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">${item.cat}</div>
+                `;
+            } else if (slideType === 1) {
+                // Diapositiva 2: Palabra en Inglés
+                contentHTML = `
+                    <div class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">Palabra (English)</div>
+                    <div class="text-5xl md:text-7xl font-black tracking-tight text-black">${item.en}</div>
+                `;
+            } else if (slideType === 2) {
+                // Diapositiva 3: Referencia visual específica por tipo
+                if (item.textOnly) {
+                    contentHTML = `
+                        <div class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">Escritura</div>
+                        <div class="text-4xl md:text-6xl font-black text-black px-6 py-4 border-4 border-black rounded-xl bg-gray-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">${item.en}</div>
+                    `;
+                } else if (item.colorCode) {
+                    contentHTML = `
+                        <div class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">Color de Referencia</div>
+                        <div class="w-48 h-48 md:w-56 md:h-56 mx-auto border-4 border-black rounded-xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] flex items-center justify-center ${item.border ? 'border-4 border-black' : ''}" style="background-color: ${item.colorCode};">
+                        </div>
+                    `;
+                } else if (item.shapeSvg) {
+                    contentHTML = `
+                        <div class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">Figura Geométrica</div>
+                        <div class="w-48 h-48 md:w-56 md:h-56 mx-auto border-4 border-black rounded-xl shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-gray-50 flex items-center justify-center">
+                            ${item.shapeSvg}
+                        </div>
+                    `;
+                } else {
+                    contentHTML = `
+                        <div class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">Imagen de Referencia</div>
+                        <div class="w-48 h-48 md:w-56 md:h-56 mx-auto border-4 border-black rounded-xl overflow-hidden shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-gray-100 flex items-center justify-center">
+                            <img src="${item.img}" alt="${item.en}" class="w-full h-full object-cover" onerror="this.src='https://placehold.co/400x400/FFDE00/000000?text=${item.en}'">
+                        </div>
+                    `;
+                }
+            } else if (slideType === 3) {
+                // Diapositiva 4: Traducción en Español
+                contentHTML = `
+                    <div class="text-sm font-bold text-gray-500 uppercase tracking-widest mb-3">Traducción (Español)</div>
+                    <div class="text-4xl md:text-6xl font-black uppercase text-black yellow-accent px-6 py-2 border-4 border-black rounded-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">${item.es}</div>
+                `;
+            }
+
+            container.innerHTML = contentHTML;
+        }
+
+        function nextSlide() {
+            if (currentIndex < totalSlides - 1) {
+                currentIndex++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentIndex > 0) {
+                currentIndex--;
+                updateSlide();
+            }
+        }
+
+        function jumpToCategory(categoryName) {
+            const firstIndex = rawData.findIndex(item => item.cat === categoryName);
+            if (firstIndex !== -1) {
+                currentIndex = firstIndex * 4;
+                updateSlide();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        window.onload = function() {
+            initCategorySelector();
+            updateSlide();
+        };
+    </script>
+</body>
+</html>
